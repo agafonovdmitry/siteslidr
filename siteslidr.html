@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>SiteSlidr &beta;</title>
+        <link rel="stylesheet" type="text/css" href="siteslidr.css">
+    </head>
+    <body>
+        <script type="text/javascript" src="jquery.min.js"></script>
+        <script type="text/javascript" src="siteslidr.js"></script>
+        <script type="text/javascript">
+            $(function(){
+                SiteSlidr.run(
+                {
+                    'default_config':
+                    {
+                        'duration': 5,
+                        'reload': false
+                    },
+                    'sites':
+                    [
+                        {
+                            'id': '0001',
+                            'url': 'site_a.html',
+                            'reload': true
+                        },
+                        {
+                            'id': '0002',
+                            'url': 'site_a.html'
+                        }
+                    ]
+                });
+                console.log(SiteSlidr);
+            });
+        </script>
+    </body>
+</html>
