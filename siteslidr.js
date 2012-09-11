@@ -21,9 +21,19 @@
         // Default site settings
         // (site is a synonym for slide here and below)
         site_defaults = {
+            'id': null,
             'url': 'siteslidr_0.html',
-            'duration': 5,
-            'transition': 'fade'
+            'duration': 1000,
+            'transition': {'type': 'fade', 'duration': 100},
+            'elem': null,
+            'show': function (callback) {
+                //console.log(this);
+                this.elem.fadeIn(this.transition.duration, callback);
+            },
+            'hide': function (callback) {
+                //console.log(this);
+                this.elem.fadeOut(this.transition.duration, callback);
+            }
         },
 
         // Runtime data
@@ -68,46 +78,45 @@
 
             // Add all the slides to stage
             for (var i = config.sites.length - 1; i >= 0; i--) {
-                var siteid = SiteSlidr.add(config.sites[i])
-                stage.sites.push({'site': $('#'+ siteid), 'id': siteid} );
+                stage.sites.push(add(config.sites[i]));
             }
+//            console.log(stage.sites)
             stage.current = 0;
             stage.root.fadeIn();
             return true;
-        };
+        },
 
-    // Public interface
-
-    window.SiteSlidr = {
-
-        'version': function () {
+        version = function () {
             return VERSION.join('.');
         },
 
         // Create site frame and add to stage.
         // Initial state is hidden and url XXX TODO not loaded XXX.
-        'add': function (siteconfig) {
+        add = function (siteconfig) {
             console.log('add()');
-            var siteframe = $("<iframe id='" +
-                siteconfig.id + "' class='SiteSlidr_Frame' src='" +
-                siteconfig.url + "'></iframe>").hide();
-            stage.root.append(siteframe);
-            return siteconfig.id;
+            var site = $.extend({}, site_defaults, siteconfig);
+            site.elem = $("<iframe id='" +
+                site.id + "' class='SiteSlidr_Frame' src='" +
+                site.url + "'></iframe>").hide();
+            stage.root.append(site.elem);
+            return site;
         },
 
-        'delete': function (siteid) {
-            console.log('delete()');
+        del = function (siteid) {
+            console.log('del()');
             return false;
         },
 
-        'go': function (siteid) {
+        go = function (siteid) {
             console.log('go()');
-            stage.sites[stage.current].site.fadeOut(1000, function () {
-                stage.sites[1].site.fadeIn(1000);
-            });
+            stage.sites[stage.current].hide();
+            stage.sites[1].show();
+//            stage.sites[stage.current].site.fadeOut(1000, function () {
+//                stage.sites[1].site.fadeIn(1000);
+//            });
         },
 
-        'pause': function () {
+        pause = function () {
             console.log('pause()');
             if (stage.timeout) {
                 window.clearTimeout(stage.timeout);
@@ -115,43 +124,43 @@
             }
         },
 
-        'play': function () {
+        play = function () {
             console.log('play()');
             if (!stage.timeout) {
-                stage.timeout = window.setTimeout(SiteSlidr.next, 5000);
+                stage.timeout = window.setTimeout(next, 500);
             }
         },
 
-        'rewind': function () {
+        rewind = function () {
             console.log('rewind()');
-            SiteSlidr.go(stage.sites[0])
+            go(stage.sites[0])
         },
 
-        'stop': function () {
+        stop = function () {
             return this.pause() && this.rewind();
         },
 
-        'next': function () {
+        next = function () {
             console.log('next()');
-            stage.sites[stage.current].site.fadeOut(1000, function () {
-                if (stage.current === stage.sites.length) {
+            stage.sites[stage.current].hide(function () {
+                if (stage.current === stage.sites.length - 1) {
                     stage.current = 0;
                 } else {
                     stage.current += 1;
                 }
-                console.log(stage.sites);
-                stage.sites[stage.current].site.fadeIn(1000);
+                console.log(stage.current);
+                stage.sites[stage.current].show();
             });
             window.clearTimeout(stage.timeout);
-            stage.timeout = window.setTimeout(SiteSlidr.next, 5000);
+            stage.timeout = window.setTimeout(next, 500);
         },
 
-        'previous': function () {
+        previous = function () {
             console.log('previous()');
             return false;
         },
 
-        'run': function (config) {
+        run = function (config) {
             try {
                 if (config.sites[0].url === '') {
                     throw ('NotConfigured');
@@ -162,13 +171,16 @@
                 fatal_error('SiteSlidr was not properly configured:' + e + ' ' +
                 'Read the docs at http://github.com/agafonovdmitry/siteslidr');
             }
-            SiteSlidr.rewind();
-            SiteSlidr.play();
-            console.log(stage);
-//            stage.sites[1].fadeOut(1000, function () {
-//                stage.sites[1].fadeIn(1000);
-//            });
+            rewind();
+            play();
+//            console.log(stage);
         }
 
+    //
+    // Public interface
+    //
+    window.SiteSlidr = {
+        'run': run
     };
+
 }());
