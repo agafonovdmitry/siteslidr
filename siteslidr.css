@@ -14,8 +14,46 @@ body, html {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: #000;
   overflow: hidden;
+}
+
+#SiteSlidr_Control {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 55px;
+  z-index: 999;
+  opacity: 0.05;
+}
+
+#SiteSlidr_Control p {
+  font-size: 20px;
+  line-height: 35px;
+  font-family: sans-serif;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+#SiteSlidr_Control:hover {
+  opacity: 1;
+}
+
+#SiteSlidr_Control span {
+  background-color: rgba(50, 50, 50, 0.5);
+  padding: 10px 20px;
+  margin: 0 3px;
+  border-radius: 5px;
+  text-shadow: 0 0 2px #000;
+  box-shadow: inset 0 0 10px #000;
+  cursor: pointer;
+}
+
+#SiteSlidr_Control span#SiteSlidr_Counter {
+  color: #996;
+  cursor: default;
 }
 
 .SiteSlidr_Frame {
@@ -25,4 +63,9 @@ body, html {
   width: 100%;
   height: 100%;
   background-color: #000;
+  z-index: 100;
+}
+
+.SiteSlidr_Frame.front {
+  z-index: 200;
 }

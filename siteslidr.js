@@ -13,6 +13,10 @@
 
     var VERSION = [0, 0, 1],
 
+        version = function () {
+            return VERSION.join('.');
+        },
+
         // Default settings for an app
         defaults = {
             'background': '#333'
@@ -23,17 +27,9 @@
         site_defaults = {
             'id': null,
             'url': 'siteslidr_0.html',
-            'duration': 1000,
-            'transition': {'type': 'fade', 'duration': 100},
-            'elem': null,
-            'show': function (callback) {
-                //console.log(this);
-                this.elem.fadeIn(this.transition.duration, callback);
-            },
-            'hide': function (callback) {
-                //console.log(this);
-                this.elem.fadeOut(this.transition.duration, callback);
-            }
+            'duration': 5000,
+            'transition': {'type': 'fade', 'duration': 500},
+            'elem': null
         },
 
         // Runtime data
@@ -43,8 +39,11 @@
             'overlay': null,
             'sites': [],
             'current': 0,
+            'next': 0,
+            'total': 0,
             'background': null,
-            'timer': null
+            'timer': null,
+            'busy': false
         },
 
         // XXX remove???
@@ -59,7 +58,7 @@
 
         // Set all things up
         init = function (config) {
-            console.log('init()');
+//            console.log('init()');
             // Is stage ready?
             if (stage.root) {
                 return true;
@@ -76,88 +75,126 @@
                 $('body').append(stage.root);
             }
 
+            stage.root.append('<div id="SiteSlidr_Control"><p></p></div>');
+            var ctlPlay = $('<span id="SiteSlidr_Play">Play</span>').on('click', function () {
+                play(false);
+            });
+            var ctlStop = $('<span id="SiteSlidr_Stop">Stop</span>').on('click', stop);
+            var ctlPause = $('<span id="SiteSlidr_Pause">Pause</span>').on('click', pause);
+            var ctlPrevious = $('<span id="SiteSlidr_Previous">Previous</span>').on('click', previous);
+            var ctlNext = $('<span id="SiteSlidr_Next">Next</span>').on('click', next);
+            $('#SiteSlidr_Control p')
+                .append(ctlStop).append(ctlPlay).append(ctlPause)
+                .append(ctlPrevious).append(ctlNext)
+                .append('<span id="SiteSlidr_Counter"></span>');
+
+            // Apply user's defaults
+            $.extend(site_defaults, config.site_defaults);
+
             // Add all the slides to stage
             for (var i = config.sites.length - 1; i >= 0; i--) {
-                stage.sites.push(add(config.sites[i]));
+                add(config.sites[i]);
             }
-//            console.log(stage.sites)
+            //console.log(stage.sites)
             stage.current = 0;
             stage.root.fadeIn();
             return true;
         },
 
-        version = function () {
-            return VERSION.join('.');
-        },
-
         // Create site frame and add to stage.
         // Initial state is hidden and url XXX TODO not loaded XXX.
         add = function (siteconfig) {
-            console.log('add()');
+//            console.log('add()');
             var site = $.extend({}, site_defaults, siteconfig);
             site.elem = $("<iframe id='" +
                 site.id + "' class='SiteSlidr_Frame' src='" +
                 site.url + "'></iframe>").hide();
+            // Don't mess presentation by long transitions
+            if (site.transition.duration > site.duration/2) {
+                site.transition.duration = site.duration/2;
+            }
             stage.root.append(site.elem);
-            return site;
+            stage.sites.unshift(site);
+            stage.total = stage.sites.length;
+            return site.id;
         },
 
         del = function (siteid) {
-            console.log('del()');
+//            console.log('del()');
             return false;
         },
 
-        go = function (siteid) {
-            console.log('go()');
-            stage.sites[stage.current].hide();
-            stage.sites[1].show();
-//            stage.sites[stage.current].site.fadeOut(1000, function () {
-//                stage.sites[1].site.fadeIn(1000);
-//            });
-        },
+//        go = function (siteid) {
+//            console.log('go()');
+//            stage.sites[stage.current].hide();
+//            stage.sites[1].show();
+//        },
 
         pause = function () {
-            console.log('pause()');
+//            console.log('pause()');
             if (stage.timeout) {
                 window.clearTimeout(stage.timeout);
                 stage.timeout = null;
             }
         },
 
-        play = function () {
-            console.log('play()');
-            if (!stage.timeout) {
-                stage.timeout = window.setTimeout(next, 500);
-            }
-        },
-
         rewind = function () {
-            console.log('rewind()');
-            go(stage.sites[0])
+//            console.log('rewind()');
+            stage.next = 0;
+            switcher();
         },
 
         stop = function () {
-            return this.pause() && this.rewind();
+            pause();
+            rewind();
+        },
+
+        // Hide current and show new slide
+        switcher = function () {
+//            console.log('switcher('+stage.current+','+stage.next+')');
+            var cur = stage.sites[stage.current],
+                nxt = stage.sites[stage.next];
+            $('#SiteSlidr_Counter').html((stage.next + 1) + '/' + stage.total);
+            if (stage.busy) {
+                console.log('Stage busy!');
+                return;
+            }
+            stage.busy = true;
+            nxt.elem.addClass('front').fadeIn(nxt.transition.duration, function () {
+                nxt.elem.removeClass('front');
+                if (cur.id !== nxt.id) {
+                    cur.elem.hide();
+                }
+                stage.current = stage.next;
+                stage.busy = false;
+            });
+        },
+
+        play = function (forward) {
+            //console.log('play()');
+            window.clearTimeout(stage.timeout);
+            if (forward !== false) {
+                next();
+            }
+            stage.timeout = window.setTimeout(play, stage.sites[stage.next].duration);
         },
 
         next = function () {
-            console.log('next()');
-            stage.sites[stage.current].hide(function () {
-                if (stage.current === stage.sites.length - 1) {
-                    stage.current = 0;
-                } else {
-                    stage.current += 1;
-                }
-                console.log(stage.current);
-                stage.sites[stage.current].show();
-            });
-            window.clearTimeout(stage.timeout);
-            stage.timeout = window.setTimeout(next, 500);
+            //console.log('next()');
+            stage.next = stage.current + 1;
+            if (stage.next === stage.total) {
+                stage.next = 0;
+            }
+            switcher();
         },
 
         previous = function () {
             console.log('previous()');
-            return false;
+            stage.next = stage.current - 1;
+            if (stage.next === -1) {
+                stage.next = stage.total - 1;
+            }
+            switcher();
         },
 
         run = function (config) {
@@ -172,7 +209,7 @@
                 'Read the docs at http://github.com/agafonovdmitry/siteslidr');
             }
             rewind();
-            play();
+            play(false);
 //            console.log(stage);
         }
 

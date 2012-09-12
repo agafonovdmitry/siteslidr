@@ -5,17 +5,16 @@
         <link rel="stylesheet" type="text/css" href="siteslidr.css">
     </head>
     <body>
-        <h1>Welcome to SiteSlidr!</h1>
         <script type="text/javascript" src="jquery.min.js"></script>
         <script type="text/javascript" src="siteslidr.js"></script>
         <script type="text/javascript">
             $(function(){
                 SiteSlidr.run(
                 {
-                    'default_config':
+                    'site_defaults':
                     {
-                        'duration': 5,
-                        'reload': false
+                        'duration': 5000, // ms to show single site
+                        'reload': false   // reload site before showing
                     },
                     'sites':
                     [
