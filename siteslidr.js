@@ -75,6 +75,8 @@
                 $('body').append(stage.root);
             }
 
+            stage.root.append('<div id="SiteSlidr_Overlay"></div>');
+
             stage.root.append('<div id="SiteSlidr_Control"><p></p></div>');
             var ctlPlay = $('<span id="SiteSlidr_Play">Play</span>').on('click', function () {
                 play(false);
@@ -84,8 +86,11 @@
             var ctlPrevious = $('<span id="SiteSlidr_Previous">Previous</span>').on('click', previous);
             var ctlNext = $('<span id="SiteSlidr_Next">Next</span>').on('click', next);
             $('#SiteSlidr_Control p')
-                .append(ctlStop).append(ctlPlay).append(ctlPause)
-                .append(ctlPrevious).append(ctlNext)
+                .append(ctlStop)
+                .append(ctlPlay)
+                .append(ctlPause)
+                .append(ctlPrevious)
+                .append(ctlNext)
                 .append('<span id="SiteSlidr_Counter"></span>');
 
             // Apply user's defaults
@@ -135,6 +140,9 @@
             if (stage.timeout) {
                 window.clearTimeout(stage.timeout);
                 stage.timeout = null;
+                $('#SiteSlidr_Control')
+                    .addClass('paused')
+                    .removeClass('playing');
             }
         },
 
@@ -177,6 +185,9 @@
                 next();
             }
             stage.timeout = window.setTimeout(play, stage.sites[stage.next].duration);
+            $('#SiteSlidr_Control')
+                .addClass('playing')
+                .removeClass('paused');
         },
 
         next = function () {

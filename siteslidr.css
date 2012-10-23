@@ -56,6 +56,21 @@ body, html {
   cursor: default;
 }
 
+#SiteSlidr_Control.playing #SiteSlidr_Play,
+#SiteSlidr_Control.paused #SiteSlidr_Pause {
+  display: none;
+}
+
+#SiteSlidr_Overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  /*background: rgba(0, 0, 0, 0.5);*/
+  z-index: 998;
+}
+
 .SiteSlidr_Frame {
   position: absolute;
   top: 0;
