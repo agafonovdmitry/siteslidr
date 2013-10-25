@@ -8,31 +8,29 @@
         <script type="text/javascript" src="jquery.min.js"></script>
         <script type="text/javascript" src="siteslidr.js"></script>
         <script type="text/javascript">
-            $(function(){
-                SiteSlidr.run(
+            SiteSlidr.run(
+            {
+                'defaults':
                 {
-                    'site_defaults':
+                    'duration': 5000, // ms to show single site
+                    'reload': false   // reload site before showing
+                },
+                'sites':
+                [
                     {
-                        'duration': 5000, // ms to show single site
-                        'reload': false   // reload site before showing
+                        'id': '0001',
+                        'url': 'site_a.html',
+                        'reload': true
                     },
-                    'sites':
-                    [
-                        {
-                            'id': '0001',
-                            'url': 'site_a.html',
-                            'reload': true
-                        },
-                        {
-                            'id': '0002',
-                            'url': 'site_b.html'
-                        },
-                        {
-                            'id': '0003',
-                            'url': 'site_c.html'
-                        }
-                    ]
-                });
+                    {
+                        'id': '0002',
+                        'url': 'site_b.html'
+                    },
+                    {
+                        'id': '0003',
+                        'url': 'site_c.html'
+                    }
+                ]
             });
         </script>
     </body>

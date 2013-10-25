@@ -7,7 +7,7 @@
 
 "use strict";
 
-(function () {
+(function ($) {
 
     // Private data and functions
 
@@ -48,25 +48,15 @@
 
         // XXX remove???
         fatal_error = function (e) {
-            console.log(e);
-            throw ('Error.');
+            throw ('Error. ' + e);
         },
-
-        // We need own reference to jQuery
-        // Will be set by init()
-        $ = null,
 
         // Set all things up
         init = function (config) {
-//            console.log('init()');
             // Is stage ready?
             if (stage.root) {
                 return true;
             }
-
-            // Check and install jQuery lib
-            // XXX TODO install from cdn if not available here XXX
-            $ = window.jQuery;
 
             // Prepare the stage, if not defined by user
             stage.root = $('#SiteSlidr_Stage');
@@ -94,13 +84,12 @@
                 .append('<span id="SiteSlidr_Counter"></span>');
 
             // Apply user's defaults
-            $.extend(site_defaults, config.site_defaults);
+            $.extend(site_defaults, config.defaults);
 
             // Add all the slides to stage
             for (var i = config.sites.length - 1; i >= 0; i--) {
                 add(config.sites[i]);
             }
-            //console.log(stage.sites)
             stage.current = 0;
             stage.root.fadeIn();
             return true;
@@ -109,7 +98,6 @@
         // Create site frame and add to stage.
         // Initial state is hidden and url XXX TODO not loaded XXX.
         add = function (siteconfig) {
-//            console.log('add()');
             var site = $.extend({}, site_defaults, siteconfig);
             site.elem = $("<iframe id='" +
                 site.id + "' class='SiteSlidr_Frame' src='" +
@@ -124,19 +112,7 @@
             return site.id;
         },
 
-        del = function (siteid) {
-//            console.log('del()');
-            return false;
-        },
-
-//        go = function (siteid) {
-//            console.log('go()');
-//            stage.sites[stage.current].hide();
-//            stage.sites[1].show();
-//        },
-
         pause = function () {
-//            console.log('pause()');
             if (stage.timeout) {
                 window.clearTimeout(stage.timeout);
                 stage.timeout = null;
@@ -147,7 +123,6 @@
         },
 
         rewind = function () {
-//            console.log('rewind()');
             stage.next = 0;
             switcher();
         },
@@ -159,12 +134,10 @@
 
         // Hide current and show new slide
         switcher = function () {
-//            console.log('switcher('+stage.current+','+stage.next+')');
             var cur = stage.sites[stage.current],
                 nxt = stage.sites[stage.next];
             $('#SiteSlidr_Counter').html((stage.next + 1) + '/' + stage.total);
             if (stage.busy) {
-                console.log('Stage busy!');
                 return;
             }
             stage.busy = true;
@@ -179,7 +152,6 @@
         },
 
         play = function (forward) {
-            //console.log('play()');
             window.clearTimeout(stage.timeout);
             if (forward !== false) {
                 next();
@@ -191,7 +163,6 @@
         },
 
         next = function () {
-            //console.log('next()');
             stage.next = stage.current + 1;
             if (stage.next === stage.total) {
                 stage.next = 0;
@@ -200,7 +171,6 @@
         },
 
         previous = function () {
-            console.log('previous()');
             stage.next = stage.current - 1;
             if (stage.next === -1) {
                 stage.next = stage.total - 1;
@@ -221,7 +191,6 @@
             }
             rewind();
             play(false);
-//            console.log(stage);
         }
 
     //
@@ -231,4 +200,4 @@
         'run': run
     };
 
-}());
+}(jQuery));
